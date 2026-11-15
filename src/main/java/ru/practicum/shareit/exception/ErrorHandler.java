@@ -2,9 +2,11 @@ package ru.practicum.shareit.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Map;
 
@@ -37,5 +39,17 @@ public class ErrorHandler {
                 .map(f -> f.getField() + ": " + f.getDefaultMessage())
                 .orElse("Validation error");
         return Map.of("error", msg);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleMissingHeader(MissingRequestHeaderException e) {
+        return Map.of("error", "Missing required header: " + e.getHeaderName());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        return Map.of("error", "Invalid parameter type: " + e.getName());
     }
 }
